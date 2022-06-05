@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:nakama/nakama.dart';
 import 'package:nakama/api.dart' as api;
 import 'package:nakama/rtapi.dart' as rt;
+import 'package:nakama_test/nakama/season/nakama_season_mkanager.dart';
 import 'widgets/match_area.dart';
 import 'widgets/matchmaker.dart';
 import 'widgets/sign_in_box.dart';
@@ -13,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/';
   HomeScreen({Key? key}) : super(key: key);
 
   @override
@@ -29,7 +31,7 @@ class __HomeScreenState extends State<HomeScreen> {
   void _getHTTPClient() async {
     var response = await http.post(
         Uri.parse(
-            'http://192.168.68.3:7350/v2/account/authenticate/email?username=kibria_22'),
+            'http://192.168.0.8:7350/v2/account/authenticate/email?username=kibria_22'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Basic ZGVmYXVsdGtleTo='
@@ -52,7 +54,7 @@ class __HomeScreenState extends State<HomeScreen> {
     super.initState();
     // _getHTTPClient();
     _nakamaClient = getNakamaClient(
-      host: '192.168.68.3',
+      host: '192.168.0.108',
       httpPort: 7350,
       ssl: false,
       serverKey: 'defaultkey',
@@ -69,32 +71,28 @@ class __HomeScreenState extends State<HomeScreen> {
     if (kDebugMode) {
       print('Signing in with email $email');
     }
-    late Session res;
-    try {
-      res = await _nakamaClient.authenticateEmail(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error signing in: $e');
-      }
-    }
+    late bool res;
+    res = (await NakamaSessionManager.instance.authenticateEmailPassword(
+      email: email,
+      password: password,
+      create: false,
+    ));
 
     if (kDebugMode) {
       print('Res: ' + res.toString());
     }
+
     // sign in was successful
-    setState(() => _session = res);
+    setState(() => _session = NakamaSessionManager.instance.session);
 
     // get user's profile
-    final ac = await _nakamaClient.getAccount(res);
+    final ac = await _nakamaClient.getAccount(_session!);
     setState(() => _account = ac as api.Account?);
     if (kDebugMode) {
       print('account: $ac');
     }
     final r = NakamaWebsocketClient.init(
-      host: '192.168.68.3',
+      host: '192.168.0.108',
       ssl: false,
       token: _session!.token,
     );

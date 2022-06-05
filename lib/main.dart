@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'data_page.dart';
 import 'nakama.dart';
 
 void main() {
@@ -18,10 +19,15 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: HomeScreen(),
-      ),
+      // home: MaterialApp(
+      //   debugShowCheckedModeBanner: false,
+      //   home: HomeScreen(),
+      // ),
+      initialRoute: HomeScreen.routeName,
+      routes: {
+        HomeScreen.routeName: (context) => HomeScreen(),
+        TextPage.routeName: (context) => TextPage(),
+      },
     );
   }
 }
